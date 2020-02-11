@@ -2,12 +2,12 @@ package com.bms.ui.purchases;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.CursorAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -21,7 +21,7 @@ import com.bms.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 
-public class PurchaseFragment extends Fragment {
+public class ParticularFragment extends Fragment {
     public ListView listView;
     public void display(View root, DBManager dbManager){
         listView = root.findViewById(R.id.particularsList);
@@ -41,7 +41,7 @@ public class PurchaseFragment extends Fragment {
     public View onCreateView (@NonNull LayoutInflater inflater,
                               ViewGroup container, Bundle savedInstanceState) {
         final DBManager dbManager = new DBManager (getContext ());
-        final View root = inflater.inflate (R.layout.fragment_purchases, container, false);
+        final View root = inflater.inflate (R.layout.fragment_particular, container, false);
 
         display (root, dbManager);
 
@@ -54,26 +54,70 @@ public class PurchaseFragment extends Fragment {
                 LayoutInflater inflater = requireActivity().getLayoutInflater();
 
 
-                final View addPurchase = inflater.inflate(R.layout.dialog_add_purchase, null);
+                final View addParticular = inflater.inflate(R.layout.dialog_add_particular, null);
 
-                final EditText particular_id = addPurchase.findViewById (R.id.particular_id);
-                final EditText particular_name = addPurchase.findViewById (R.id.particular_name);
-                final EditText unit_price = addPurchase.findViewById (R.id.unit_price);
+                final EditText particular_id = addParticular.findViewById (R.id.particular_id);
+                final EditText particular_name = addParticular.findViewById (R.id.particular_name);
+                final EditText unit_price = addParticular.findViewById (R.id.unit_price);
 
                 builder.setTitle("Add Particular");
-                builder.setView(addPurchase);
+                builder.setView(addParticular);
                 builder.setPositiveButton ("Add Particular", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         String _id = particular_id.getText ().toString ();
                         String name = particular_name.getText ().toString ();
                         int price = Integer.parseInt (unit_price.getText ().toString ());
-                        Purchase particular = new Purchase (_id, name, price);
+                        Particular particular = new Particular (_id, name, price);
                         dbManager.addParticular (particular);
                         display (root, dbManager);
                     }
                 });
                 builder.setNegativeButton ("Cancel", null);
                 builder.show ();
+            }
+        });
+
+        listView.setOnItemClickListener (new AdapterView.OnItemClickListener () {
+            @Override
+            public void onItemClick (AdapterView<?> parent, View view, int position, long id) {
+                AlertDialog.Builder dialog = new AlertDialog.Builder (getContext ());
+                LayoutInflater inflater = requireActivity().getLayoutInflater();
+                final View editParticular = inflater.inflate(R.layout.dialog_add_particular, null);
+
+                final EditText particular_id = editParticular.findViewById (R.id.particular_id);
+                final EditText particular_name = editParticular.findViewById (R.id.particular_name);
+                final EditText unit_price = editParticular.findViewById (R.id.unit_price);
+                dialog.setView (editParticular);
+                Cursor particularDetails = dbManager.readParticularDetails (position);
+                particularDetails.moveToFirst ();
+                particular_id.setText (particularDetails.getString (0));
+                particular_name.setText (particularDetails.getString (1));
+                unit_price.setText (particularDetails.getString (2));
+
+                dialog.setTitle ("View Particular");
+                dialog.setPositiveButton ("Update",
+                        new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        String _id = particular_id.getText ().toString ();
+                        String name = particular_name.getText ().toString ();
+                        int price = Integer.parseInt (unit_price.getText ().toString ());
+                        Particular particular = new Particular (_id, name, price);
+                        dbManager.updateParticular (particular);
+                        display (root, dbManager);
+                    }
+                });
+                dialog.setNegativeButton ("Delete",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                String _id = particular_id.getText ().toString ();
+                                String name = particular_name.getText ().toString ();
+                                int price = Integer.parseInt (unit_price.getText ().toString ());
+                                Particular particular = new Particular (_id, name, price);
+                                dbManager.deleteParticular (particular);
+                                display (root, dbManager);
+                            }
+                        });
+                dialog.show ();
             }
         });
         return root;

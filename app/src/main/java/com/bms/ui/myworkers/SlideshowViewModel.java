@@ -1,4 +1,4 @@
-package com.bms.ui.slideshow;
+package com.bms.ui.myworkers;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;

@@ -1,4 +1,4 @@
-package com.bms.ui.gallery;
+package com.bms.ui.purchases;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
